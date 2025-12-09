@@ -315,7 +315,7 @@ const gerarPagamento = async (sock, from, plano) => {
       throw new Error("Não foi possível gerar o código PIX")
     }
 
-    const mensagemPagamento = `╔═════════════════════════════════╗
+    const mensagemPlano = `╔═════════════════════════════════╗
 ║      💎 PAGAMENTO VIA PIX 💎      ║
 ╚═════════════════════════════════╝
 
@@ -326,35 +326,39 @@ const gerarPagamento = async (sock, from, plano) => {
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 ✨ *Recursos inclusos:*
-${plano.recursos.map((r) => `   ${r}`).join("\n")}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📱 *CÓDIGO PIX COPIA E COLA:*
-
-\`\`\`${pixCode}\`\`\`
+${plano.recursos.map((r) => `   ✓ ${r}`).join("\n")}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📋 *Como pagar:*
 
-1️⃣ Copie o código acima
+1️⃣ Copie o código PIX abaixo
 2️⃣ Abra o app do seu banco
 3️⃣ Escolha PIX → Copia e Cola
 4️⃣ Cole o código e confirme
-5️⃣ Pronto! Seu acesso será liberado automaticamente
+5️⃣ Pronto! Acesso liberado automaticamente
 
 ⚡ *Pagamento instantâneo!*
-🔒 *100% seguro via Mercado Pago*
+🔒 *100% seguro via Mercado Pago*`
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    await sock.sendMessage(from, { text: mensagemPlano })
+
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    await sock.sendMessage(from, {
+      text: `📱 *CÓDIGO PIX COPIA E COLA:*\n\n${pixCode}`,
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    const mensagemOpcoes = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 💡 *Opções:*
 *1* - 🔄 Verificar pagamento
 *2* - 🔁 Gerar novo código
 *0* - ⬅️  Menu principal`
 
-    await sock.sendMessage(from, { text: mensagemPagamento })
+    await sock.sendMessage(from, { text: mensagemOpcoes })
 
     await salvarSessao(from, {
       plano: plano.nome,
