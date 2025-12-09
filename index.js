@@ -309,12 +309,12 @@ const gerarPagamento = async (sock, from, plano) => {
     const response = await payment.create({ body })
 
     const pixCode = response.point_of_interaction?.transaction_data?.qr_code
-    const pixQrBase64 = response.point_of_interaction?.transaction_data?.qr_code_base64
 
     if (!pixCode) {
       throw new Error("Não foi possível gerar o código PIX")
     }
 
+    // 📦 MENSAGEM 1 - DADOS DO PLANO
     const mensagemPlano = `╔═════════════════════════════════╗
 ║      💎 PAGAMENTO VIA PIX 💎      ║
 ╚═════════════════════════════════╝
@@ -332,7 +332,7 @@ ${plano.recursos.map((r) => `   ✓ ${r}`).join("\n")}
 
 📋 *Como pagar:*
 
-1️⃣ Copie o código PIX abaixo
+1️⃣ Copie o código PIX que será enviado na próxima mensagem
 2️⃣ Abra o app do seu banco
 3️⃣ Escolha PIX → Copia e Cola
 4️⃣ Cole o código e confirme
@@ -343,14 +343,16 @@ ${plano.recursos.map((r) => `   ✓ ${r}`).join("\n")}
 
     await sock.sendMessage(from, { text: mensagemPlano })
 
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 800))
 
+    // 📋 MENSAGEM 2 - SOMENTE O CÓDIGO PIX
     await sock.sendMessage(from, {
       text: `📱 *CÓDIGO PIX COPIA E COLA:*\n\n${pixCode}`,
     })
 
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 800))
 
+    // 📩 MENSAGEM 3 - OPÇÕES
     const mensagemOpcoes = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 💡 *Opções:*
